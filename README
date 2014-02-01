@@ -1,0 +1,11 @@
+Modpack for Minetest
+
+WorldDiff automatically saves and loads changes made by players in a map. So you can synchronise maps with other people.
+
+All changes are save as map segments in /worldfolder/wd_output
+If you want to load segments by others put them into /worldfolder/wd_input
+
+This modpack depends on WorldEdit.
+https://github.com/Uberi/MineTest-WorldEdit
+
+License of code: AGPLv3
