@@ -6,7 +6,7 @@ local timer = 0
 
 -- Don't change the segment size. Otherwise your output becomes incompatible.
 local SEG = 16
-local INVERVAL = 200
+local INVERVAL = 5
 
 --
 -- Functions
@@ -46,8 +46,6 @@ minetest.register_globalstep(function(dtime)
 end)
 
 function worlddiff.save(pos1, path)
---	p = {x=math.floor(pos.x/SEG), y=math.floor(pos.y/SEG), z=math.floor(pos.z/SEG)}
---	local pos1 = {x=p.x*SEG, y=p.y*SEG, z=p.z*SEG}
 	local pos2 = {x=pos1.x+SEG, y=pos1.y+SEG, z=pos1.z+SEG}
 	if pos1 == nil or pos2 == nil then
 		print("[worlddiff] no region selected")
@@ -100,19 +98,7 @@ function worlddiff.load(pos, path)
 		end
 	end
 	-- Find the file in the given path.
-	local testpaths = {
-		path .. "/" .. param,
-		path .. "/" .. param .. ".we",
-		path .. "/" .. param .. ".wem",
-	}
-	local file, err
-	for index, path in ipairs(testpaths) do
-		file, err = io.open(path, "rb")
-		if not err then
-			break
-		end
-	end
-	if err then
+	if io.open(path, "rb") then
 --		print("[worlddiff] could not open file \"" .. param .. "\"")
 		return
 	end
@@ -124,8 +110,8 @@ function worlddiff.load(pos, path)
 		print("[worlddiff] invalid file: file is invalid or created with newer version of WorldEdit")
 		return
 	end
+	local count = worldedit.deserialize(pos1, value)
 	-- Rename, so the file does not get used again.
 	os.rename((path .. "/" .. param .. ".we"), (path .. "/" .. param .. "_used.we"))
-	local count = worldedit.deserialize(pos1, value)
 	print("[worlddiff] ".. count .. " nodes loaded")
 end
