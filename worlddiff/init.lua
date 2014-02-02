@@ -6,7 +6,10 @@ local timer = 0
 
 -- Don't change the segment size. Otherwise your output becomes incompatible.
 local SEG = 16
-local INVERVAL = 5
+local INTERVAL = 5
+if type(minetest.setting_get("wd_interval")) == "number" then
+	INTERVAL = minetest.setting_get("wd_interval")
+end
 
 --
 -- Functions
@@ -36,7 +39,7 @@ end
 minetest.register_globalstep(function(dtime)
 	-- Don't check all the time.
 	timer = timer + dtime
-	if timer < 5 then return end
+	if timer < INTERVAL then return end
 	timer = 0
 	
 	for i,pos1 in pairs(buffer) do
@@ -98,7 +101,19 @@ function worlddiff.load(pos, path)
 		end
 	end
 	-- Find the file in the given path.
-	if io.open(path, "rb") then
+	local testpaths = {
+		path .. "/" .. param,
+		path .. "/" .. param .. ".we",
+		path .. "/" .. param .. ".wem",
+	}
+	local file, err
+	for index, path in ipairs(testpaths) do
+		file, err = io.open(path, "rb")
+		if not err then
+			break
+		end
+	end
+	if err then
 --		print("[worlddiff] could not open file \"" .. param .. "\"")
 		return
 	end
@@ -110,8 +125,8 @@ function worlddiff.load(pos, path)
 		print("[worlddiff] invalid file: file is invalid or created with newer version of WorldEdit")
 		return
 	end
-	local count = worldedit.deserialize(pos1, value)
 	-- Rename, so the file does not get used again.
 	os.rename((path .. "/" .. param .. ".we"), (path .. "/" .. param .. "_used.we"))
+	local count = worldedit.deserialize(pos1, value)
 	print("[worlddiff] ".. count .. " nodes loaded")
 end

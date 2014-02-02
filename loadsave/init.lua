@@ -1,4 +1,8 @@
 local timer = 0
+local INTERVAL = 5
+if type(minetest.setting_get("wd_interval")) == "number" then
+	INTERVAL = minetest.setting_get("wd_interval")
+end
 
 --
 -- Load WE files near by the player.
@@ -8,7 +12,7 @@ if not minetest.setting_getbool("wd_no_load") then
 minetest.register_globalstep(function(dtime)
 	-- Don't check all the time.
 	timer = timer + dtime
-	if timer < 5 then return end
+	if timer < INTERVAL then return end
 	timer = 0
 	
 	for _,player in ipairs(minetest.get_connected_players()) do
