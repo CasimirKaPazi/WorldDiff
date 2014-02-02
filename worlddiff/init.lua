@@ -89,7 +89,7 @@ function worlddiff.load(pos, path)
 	p = {x=math.floor(pos.x/SEG), y=math.floor(pos.y/SEG), z=math.floor(pos.z/SEG)}
 	local pos1 = {x=p.x*SEG, y=p.y*SEG, z=p.z*SEG}
 	-- Name of the files. Format is "SEGsize, lower position, (date), (used)"
-	local param = "SEGx".. pos1.x .."y".. pos1.y .."z".. pos1.z ..""
+	local param = SEG .."_x".. pos1.x .."y".. pos1.y .."z".. pos1.z ..""
 	-- Allow custom path for external mods.
 	if not path then
 		path = minetest.get_worldpath() .. "/wd_input"
