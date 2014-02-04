@@ -68,10 +68,11 @@ function worlddiff.save(pos1, path)
 		end
 	end
 	local filename = path .. "/" .. param .. ".we"
+	local filename_create = path .. "/" .. param .. "_create.we"
 	if not io.open(path, rb) then
 		os.execute("mkdir \"" .. path .. "\"") -- Create directory if it does not already exist
 	end
-	local file, err = io.open(filename, "wb")
+	local file, err = io.open(filename_create, "wb")
 	if err ~= nil then
 		print("[worlddiff] could not save file to \"" .. filename .. "\"")
 		return
@@ -79,6 +80,7 @@ function worlddiff.save(pos1, path)
 	file:write(result)
 	file:flush()
 	file:close()
+	os.rename(filename_create, filename)
 	print("[worlddiff] ".. count .. " nodes saved")
 end
 
@@ -117,6 +119,8 @@ function worlddiff.load(pos, path)
 --		print("[worlddiff] could not open file \"" .. param .. "\"")
 		return
 	end
+	-- Rename, so the file does not get used again.
+	os.rename((path .. "/" .. param .. ".we"), (path .. "/" .. param .. "_used.we"))
 	-- Clear area before loading.
 	worldedit.set(pos1, {x=pos.x+SEG, y=pos.y+SEG, z=pos.z+SEG}, "air")
 	local value = file:read("*a")
@@ -125,8 +129,6 @@ function worlddiff.load(pos, path)
 		print("[worlddiff] invalid file: file is invalid or created with newer version of WorldEdit")
 		return
 	end
-	-- Rename, so the file does not get used again.
-	os.rename((path .. "/" .. param .. ".we"), (path .. "/" .. param .. "_used.we"))
 	local count = worldedit.deserialize(pos1, value)
 	print("[worlddiff] ".. count .. " nodes loaded")
 end
