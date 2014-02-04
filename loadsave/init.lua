@@ -41,4 +41,11 @@ end)
 minetest.register_on_placenode(function(pos, node, placer)
 	worlddiff.addsave(pos)
 end)
+
+minetest.register_on_shutdown(function()
+	for i,pos1 in pairs(worlddiff.buffer) do
+		worlddiff.save(pos1)
+		table.remove(worlddiff.buffer, i)
+	end
+end)
 end

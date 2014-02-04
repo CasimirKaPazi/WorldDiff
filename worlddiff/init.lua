@@ -1,7 +1,7 @@
 -- TODO: Support for external paths.
 
 worlddiff = {}
-local buffer = {}
+worlddiff.buffer = {}
 local timer = 0
 
 -- Don't change the segment size. Otherwise your output becomes incompatible.
@@ -30,10 +30,10 @@ function worlddiff.addsave(pos)
 	-- A segment is a cube with the dimensions of SEG*SEG*SEG nodes.
 	local pos1 = {x=math.floor(pos.x/SEG), y=math.floor(pos.y/SEG), z=math.floor(pos.z/SEG)}
 	pos1 = {x=pos1.x*SEG, y=pos1.y*SEG, z=pos1.z*SEG}
-	for _,p in pairs(buffer) do
+	for _,p in pairs(worlddiff.buffer) do
 		if p.x == pos1.x and p.y == pos1.y and p.z == pos1.z then return end
 	end
-	table.insert(buffer, pos1)
+	table.insert(worlddiff.buffer, pos1)
 end
 
 minetest.register_globalstep(function(dtime)
@@ -42,9 +42,9 @@ minetest.register_globalstep(function(dtime)
 	if timer < INTERVAL then return end
 	timer = 0
 	
-	for i,pos1 in pairs(buffer) do
+	for i,pos1 in pairs(worlddiff.buffer) do
 		worlddiff.save(pos1)
-		table.remove(buffer, i)
+		table.remove(worlddiff.buffer, i)
 	end
 end)
 
