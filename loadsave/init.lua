@@ -1,7 +1,7 @@
 local timer = 0
 local INTERVAL = 5
-if type(minetest.setting_get("wd_interval")) == "number" then
-	INTERVAL = minetest.setting_get("wd_interval")
+if minetest.setting_get("wd_interval") then
+	INTERVAL = tonumber(minetest.setting_get("wd_interval"))
 end
 
 --
