@@ -2,11 +2,12 @@
 
 worlddiff = {}
 worlddiff.buffer = {}
+worlddiff.segment = 16
 local timer = 0
 local worldpath = minetest.get_worldpath()
 
 -- Don't change the segment size. Otherwise your output becomes incompatible.
-local SEG = 16
+local SEG = worlddiff.segment
 local INTERVAL = 5
 if type(minetest.setting_get("wd_interval")) == "number" then
 	INTERVAL = minetest.setting_get("wd_interval")
@@ -56,10 +57,12 @@ function worlddiff.save(pos1, path)
 	end
 	-- pos1 is the bottom of the segment, pos2 on the upper opposite side.
 	local pos2 = {x=pos1.x+SEG, y=pos1.y+SEG, z=pos1.z+SEG}
+	
 	-- Name of the files. Format is "segment size_lower position_(time)_(used)"
 	-- "time" might be added in the future.
 	local param = SEG .."_x".. pos1.x .."y".. pos1.y .."z".. pos1.z ..""
 	local result, count = worldedit.serialize(pos1, pos2)
+	
 	-- Allow custom path for external mods.
 	if not path then
 		if not io.open((worldpath .. "/wd"), rb) then
@@ -72,10 +75,13 @@ function worlddiff.save(pos1, path)
 			return
 		end
 	end
-	-- Create directory if it does not already exist
+	
+	-- Create directory if it does not already exist.
 	if not io.open(path, rb) then
 		os.execute("mkdir \"" .. path .. "\"")
 	end
+	
+	-- Write file.
 	local filename = path .. "/" .. param .. ".we"
 	local filename_create = path .. "/" .. param .. "_create.we"
 	local file, err = io.open(filename_create, "wb")
@@ -86,20 +92,25 @@ function worlddiff.save(pos1, path)
 	file:write(result)
 	file:flush()
 	file:close()
+	
 	-- Using different names here to prevent simultaneous read and write.
 	os.rename(filename_create, filename)
 	print("[worlddiff] ".. count .. " nodes saved")
 end
 
 function worlddiff.load(pos, path)
+	-- Find pos1 of the segment.
 	if pos == nil then
 		print("[worlddiff] no region selected")
 		return
 	end
 	p = {x=math.floor(pos.x/SEG), y=math.floor(pos.y/SEG), z=math.floor(pos.z/SEG)}
 	local pos1 = {x=p.x*SEG, y=p.y*SEG, z=p.z*SEG}
+	local pos2 = {x=pos1.x+SEG, y=pos1.y+SEG, z=pos1.z+SEG}
+	
 	-- Name of the files. Format is "(used), SEGsize, lower position"
 	local param = SEG .."_x".. pos1.x .."y".. pos1.y .."z".. pos1.z ..""
+	
 	-- Allow custom path for external mods.
 	if not path then
 		path = worldpath .. "/wd/input"
@@ -110,20 +121,21 @@ function worlddiff.load(pos, path)
 		end
 	end
 	local file, err = io.open((path .. "/" .. param .. ".we"), "rb")
+	
 	-- Check if there is a file for the given segment.
 	if err then
 		return
 	end
+	
 	-- Rename, so the file does not get used again.
 	os.rename((path .. "/" .. param .. ".we"), (path .. "/used_" .. param .. ".we"))
-	-- Clear area before loading.
-	worldedit.set(pos1, {x=pos.x+SEG, y=pos.y+SEG, z=pos.z+SEG}, "air")
+	
+	-- Clear area before loading. Only load afterwards.
+--	worldedit.set(pos1, {x=pos.x+SEG, y=pos.y+SEG, z=pos.z+SEG}, "air")
+	
+	-- Load file into the world.
 	local value = file:read("*a")
 	file:close()
-		if worldedit.valueversion(value) == 0 then -- Unknown version
-		print("[worlddiff] invalid file: file is invalid or created with newer version of WorldEdit")
-		return
-	end
 	local count = worldedit.deserialize(pos1, value)
 	print("[worlddiff] ".. count .. " nodes loaded")
 end

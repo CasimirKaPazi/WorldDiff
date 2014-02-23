@@ -1,5 +1,6 @@
 local timer = 0
 local INTERVAL = 5
+local SEG = worlddiff.segment
 if minetest.setting_get("wd_interval") then
 	INTERVAL = tonumber(minetest.setting_get("wd_interval"))
 end
@@ -19,12 +20,12 @@ minetest.register_globalstep(function(dtime)
 		local pos = player:getpos()
 		
 		worlddiff.load(pos)
-		worlddiff.load({x=pos.x-16, y=pos.y, z=pos.z})
-		worlddiff.load({x=pos.x, y=pos.y-16, z=pos.z})
-		worlddiff.load({x=pos.x, y=pos.y, z=pos.z-16})
-		worlddiff.load({x=pos.x+16, y=pos.y, z=pos.z})
-		worlddiff.load({x=pos.x, y=pos.y+16, z=pos.z})
-		worlddiff.load({x=pos.x, y=pos.y, z=pos.z+16})
+		worlddiff.load({x=pos.x-SEG, y=pos.y, z=pos.z})
+		worlddiff.load({x=pos.x, y=pos.y-SEG, z=pos.z})
+		worlddiff.load({x=pos.x, y=pos.y, z=pos.z-SEG})
+		worlddiff.load({x=pos.x+SEG, y=pos.y, z=pos.z})
+		worlddiff.load({x=pos.x, y=pos.y+SEG, z=pos.z})
+		worlddiff.load({x=pos.x, y=pos.y, z=pos.z+SEG})
 	end
 end)
 end
