@@ -62,19 +62,22 @@ function worlddiff.save(pos1, path)
 	local result, count = worldedit.serialize(pos1, pos2)
 	-- Allow custom path for external mods.
 	if not path then
-		path = worldpath .. "/wd_output"
+		if not io.open((worldpath .. "/wd"), rb) then
+			os.execute("mkdir \"" .. worldpath .. "/wd\"")
+		end
+		path = worldpath .. "/wd/output"
 	else
 		if not worlddiff.sanepath(path) then
 			print("[worlddiff] Path is invalid.")
 			return
 		end
 	end
-	local filename = path .. "/" .. param .. ".we"
-	local filename_create = path .. "/" .. param .. "_create.we"
 	-- Create directory if it does not already exist
 	if not io.open(path, rb) then
 		os.execute("mkdir \"" .. path .. "\"")
 	end
+	local filename = path .. "/" .. param .. ".we"
+	local filename_create = path .. "/" .. param .. "_create.we"
 	local file, err = io.open(filename_create, "wb")
 	if err ~= nil then
 		print("[worlddiff] could not save file to \"" .. filename .. "\"")
@@ -99,7 +102,7 @@ function worlddiff.load(pos, path)
 	local param = SEG .."_x".. pos1.x .."y".. pos1.y .."z".. pos1.z ..""
 	-- Allow custom path for external mods.
 	if not path then
-		path = worldpath .. "/wd_input"
+		path = worldpath .. "/wd/input"
 	else
 		if not worlddiff.sanepath(path) then
 			print("[worlddiff] Path is invalid.")
