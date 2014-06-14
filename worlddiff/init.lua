@@ -2,11 +2,13 @@
 
 worlddiff = {}
 worlddiff.buffer = {}
-worlddiff.segment = 16
+-- Don't change the segment size. Otherwise your output becomes incompatible.
+worlddiff.segment = 8
 local timer = 0
 local worldpath = minetest.get_worldpath()
 
--- Don't change the segment size. Otherwise your output becomes incompatible.
+dofile(minetest.get_modpath("worlddiff").."/serialization.lua")
+
 local SEG = worlddiff.segment
 local INTERVAL = 5
 if type(minetest.setting_get("wd_interval")) == "number" then
@@ -61,7 +63,7 @@ function worlddiff.save(pos1, path)
 	-- Name of the files. Format is "segment size_lower position_(time)_(used)"
 	-- "time" might be added in the future.
 	local param = SEG .."_x".. pos1.x .."y".. pos1.y .."z".. pos1.z ..""
-	local result, count = worldedit.serialize(pos1, pos2)
+	local result, count = worlddiff.serialize(pos1, pos2)
 	
 	-- Allow custom path for external mods.
 	if not path then
@@ -130,13 +132,10 @@ function worlddiff.load(pos, path)
 	-- Rename, so the file does not get used again.
 	os.rename((path .. "/" .. param .. ".we"), (path .. "/used_" .. param .. ".we"))
 	
-	-- Clear area before loading. Only load afterwards.
---	worldedit.set(pos1, {x=pos.x+SEG, y=pos.y+SEG, z=pos.z+SEG}, "air")
-	
 	-- Load file into the world.
 	local value = file:read("*a")
 	file:close()
-	local count = worldedit.deserialize(pos1, value)
+	local count = worlddiff.deserialize(pos1, value, true)
 	print("[worlddiff] ".. count .. " nodes loaded")
 end
 

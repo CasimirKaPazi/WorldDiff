@@ -18,7 +18,8 @@ minetest.register_globalstep(function(dtime)
 	
 	for _,player in ipairs(minetest.get_connected_players()) do
 		local pos = player:getpos()
-		
+
+		-- load area the player is inside and surroundings
 		worlddiff.load(pos)
 		worlddiff.load({x=pos.x-SEG, y=pos.y, z=pos.z})
 		worlddiff.load({x=pos.x, y=pos.y-SEG, z=pos.z})
